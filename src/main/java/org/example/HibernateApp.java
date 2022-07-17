@@ -52,8 +52,9 @@ public class HibernateApp {
                     try (Session session = factory.getCurrentSession()) {
                         System.out.println("Items list:");
                         session.beginTransaction();
-                        List<Item> items = session.createQuery("select i from Item i", Item.class).getResultList();
-                        items.forEach(System.out::println);
+                        session.createQuery("select i from Item i", Item.class)
+                                .getResultList()
+                                .forEach(System.out::println);
                         session.getTransaction().commit();
                     }
                     break;
@@ -62,19 +63,23 @@ public class HibernateApp {
                     System.out.println("Customers list:");
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        List<Customer> customers = session.createQuery("select c from Customer c", Customer.class).getResultList();
-                        customers.forEach(System.out::println);
+                        session.createQuery("select c from Customer c", Customer.class)
+                                .getResultList()
+                                .forEach(System.out::println);
                         session.getTransaction().commit();
                     }
                     break;
 
                 case ("3"):
                     System.out.println("Input customer name");
-                    String name = scanner.nextLine();
+                    command = scanner.nextLine();
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        Customer customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class).setParameter("name", name).getSingleResult();
-                        customer.getPurchases().forEach(System.out::println);
+                        session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
+                                .setParameter("name", command)
+                                .getSingleResult()
+                                .getPurchases()
+                                .forEach(System.out::println);
                         session.getTransaction().commit();
 
                     } catch (NoResultException e) {
@@ -84,10 +89,14 @@ public class HibernateApp {
 
                 case ("4"):
                     System.out.println("Input item name");
-                    name = scanner.nextLine();
+                    command = scanner.nextLine();
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        session.createQuery("SELECT i from Item i WHERE i.name = :name", Item.class).setParameter("name", name).getSingleResult().getPurchases().forEach(System.out::println);
+                        session.createQuery("SELECT i from Item i WHERE i.name = :name", Item.class)
+                                .setParameter("name", command)
+                                .getSingleResult()
+                                .getPurchases()
+                                .forEach(System.out::println);
                         session.getTransaction().commit();
                     } catch (NoResultException e) {
                         System.out.println("No item with such name.");
@@ -95,26 +104,32 @@ public class HibernateApp {
                     break;
 
                 case ("5"):
-                    System.out.println("Input item name");
-                    name = scanner.nextLine();
+                    System.out.println("Input item name to delete");
+                    command = scanner.nextLine();
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        Item item = session.createQuery("SELECT i from Item i WHERE i.name = :name", Item.class).setParameter("name", name).getSingleResult();
+                        Item item = session.createQuery("SELECT i from Item i WHERE i.name = :name", Item.class)
+                                .setParameter("name", command)
+                                .getSingleResult();
                         session.remove(item);
                         session.getTransaction().commit();
+                        System.out.println("Item " + command + " removed.");
                     } catch (NoResultException e) {
                         System.out.println("No item with such name.");
                     }
                     break;
 
                 case ("6"):
-                    System.out.println("Input customer name");
-                    name = scanner.nextLine();
+                    System.out.println("Input customer name to delete");
+                    command = scanner.nextLine();
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        Customer customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class).setParameter("name", name).getSingleResult();
+                        Customer customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
+                                .setParameter("name", command)
+                                .getSingleResult();
                         session.remove(customer);
                         session.getTransaction().commit();
+                        System.out.println("Customer " + command + " removed.");
                     } catch (NoResultException e) {
                         System.out.println("No customer with such name.");
                     }
@@ -125,10 +140,15 @@ public class HibernateApp {
                     String[] params = scanner.nextLine().split(", ");
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        Customer customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class).setParameter("name", params[0]).getSingleResult();
-                        Item item = session.createQuery("SELECT i from Item i WHERE i.name = :name", Item.class).setParameter("name", params[1]).getSingleResult();
+                        Customer customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
+                                .setParameter("name", params[0])
+                                .getSingleResult();
+                        Item item = session.createQuery("SELECT i from Item i WHERE i.name = :name", Item.class)
+                                .setParameter("name", params[1])
+                                .getSingleResult();
                         customer.addPurchase(item);
                         session.getTransaction().commit();
+                        System.out.println("Added " + params[1] + " to " + params[0] + ".");
                     } catch (NoResultException e) {
                         System.out.println("Incorrect input.");
                     }

@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+
+  hibernate:
+    depends_on:
+      - postgres
+    build: .
+
+  postgres:
+    image: postgres:14.4-alpine
+    environment:
+      POSTGRES_DB: "hibernate"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:

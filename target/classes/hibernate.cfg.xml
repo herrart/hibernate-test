@@ -11,10 +11,10 @@
 <hibernate-configuration>
     <session-factory>
 
-        <property name="connection.url">jdbc:postgresql://143.compute-1.amazonaws.com:5432/dcfp</property> <!-- BD Mane -->
+        <property name="connection.url">jdbc:postgresql://postgres:5432/hibernate</property> <!-- BD Mane -->
         <property name="connection.driver_class">org.postgresql.Driver</property> <!-- DB Driver -->
         <property name="connection.username">admin</property> <!-- DB User -->
-        <property name="connection.password">password</property> <!-- DB Password -->
+        <property name="connection.password">admin</property> <!-- DB Password -->
 
         <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property> <!-- DB Dialect -->
         <property name="hbm2ddl.auto">create</property> <!-- create / create-drop / update -->

@@ -40,6 +40,8 @@ public class HibernateApp {
 
         Scanner scanner = new Scanner(System.in);
         String command = "";
+        Customer customer;
+        List<Customer> customers;
 
         while (!command.equals("exit")) {
             System.out.println("""
@@ -52,7 +54,7 @@ public class HibernateApp {
                     6. Delete customer
                     7. Make purchase
                     8. Concurrent pessimistic lock write
-                    9. One thread write
+                    9. There will be an optimistic lock
                     Type 'exit' to terminate
                     --------------------------------""");
 
@@ -72,30 +74,27 @@ public class HibernateApp {
 
                 case ("2"):
                     System.out.println("Customers list:");
-                    try (Session session = factory.getCurrentSession()) {
-                        session.beginTransaction();
-                        session.createQuery("select c from Customer c", Customer.class)
-                                .getResultList()
-                                .forEach(System.out::println);
-                        session.getTransaction().commit();
+                    customers = customerRepository.getAll();
+                    if (customers.isEmpty()) {
+                        System.out.println("There is no customers");
+                    } else {
+                        customers.forEach(System.out::println);
                     }
                     break;
 
                 case ("3"):
                     System.out.println("Input customer name");
                     command = scanner.nextLine();
-                    try (Session session = factory.getCurrentSession()) {
-                        session.beginTransaction();
-                        session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
-                                .setParameter("name", command)
-                                .getSingleResult()
-                                .getPurchases()
-                                .forEach(System.out::println);
-                        session.getTransaction().commit();
-
-                    } catch (NoResultException e) {
+                    customer = customerRepository.findByName(command);
+                    if (customer.getId() == 0) {
                         System.out.println("No customer with such name.");
+                    } else {
+                        if (customer.getPurchases().isEmpty()) {
+                            System.out.println("The customer has no purchases.");
+                        }
+                        customer.getPurchases().forEach(System.out::println);
                     }
+
                     break;
 
                 case ("4"):
@@ -135,7 +134,7 @@ public class HibernateApp {
                     command = scanner.nextLine();
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        Customer customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
+                        customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
                                 .setParameter("name", command)
                                 .getSingleResult();
                         session.remove(customer);
@@ -151,7 +150,7 @@ public class HibernateApp {
                     String[] params = scanner.nextLine().split(", ");
                     try (Session session = factory.getCurrentSession()) {
                         session.beginTransaction();
-                        Customer customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
+                        customer = session.createQuery("SELECT c from Customer c WHERE c.name = :name", Customer.class)
                                 .setParameter("name", params[0])
                                 .getSingleResult();
                         Item item = session.createQuery("SELECT i from Item i WHERE i.name = :name", Item.class)
@@ -169,9 +168,9 @@ public class HibernateApp {
                     pessimisticWriteLock(factory);
                     break;
 
-                case ("9"):
+                /*case ("9"):
                     oneThreadWrite(factory);
-                    break;
+                    break;*/
 
                 case ("exit"):
                     break;
@@ -203,9 +202,9 @@ public class HibernateApp {
 
                     rnd = (int) (Math.random() * 40) + 1;
                     //System.out.println(rnd);
-                    Session session2 = factory.getCurrentSession();
-                    session2.beginTransaction();
-                    session2.createQuery("select c from ConcurrentEntity c where c.id = :id", ConcurrentEntity.class)
+                    Session runnableSession = factory.getCurrentSession();
+                    runnableSession.beginTransaction();
+                    runnableSession.createQuery("select c from ConcurrentEntity c where c.id = :id", ConcurrentEntity.class)
                             .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                             .setParameter("id", rnd)
                             .getSingleResult()
@@ -214,11 +213,11 @@ public class HibernateApp {
                         Thread.sleep(5);
 
                     } catch (InterruptedException e) {
-                        session2.getTransaction().rollback();
+                        runnableSession.getTransaction().rollback();
                         e.printStackTrace();
                         return;
                     }
-                    session2.getTransaction().commit();
+                    runnableSession.getTransaction().commit();
                 }
 
                 count.countDown();
@@ -247,7 +246,7 @@ public class HibernateApp {
 
     }
 
-    public static void oneThreadWrite(SessionFactory factory) {
+    /*public static void oneThreadWrite(SessionFactory factory) {
         Session session = factory.getCurrentSession();
         session.beginTransaction();
         session.createNativeQuery("DELETE from concurrent_items", ConcurrentEntity.class).executeUpdate();
@@ -258,5 +257,5 @@ public class HibernateApp {
 
         System.out.println("One thread write took " + (System.currentTimeMillis() - timeCounter));
 
-    }
+    }*/
 }

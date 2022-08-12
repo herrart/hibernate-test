@@ -3,7 +3,6 @@ package org.example.entity;
 import jakarta.persistence.*;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "items")
@@ -31,13 +30,6 @@ public class Item {
         this.price = price;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -59,9 +51,6 @@ public class Item {
         return purchases;
     }
 
-    public void setPurchases(List<Purchase> purchases) {
-        this.purchases = purchases;
-    }
 
     @Override
     public String toString() {

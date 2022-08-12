@@ -1,10 +1,10 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "customers")
@@ -18,7 +18,8 @@ public class Customer {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
+    @NotNull
     private String name;
 
     public Customer() {
@@ -26,30 +27,24 @@ public class Customer {
 
     public Customer(String name) {
         this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        purchases = new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
 
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public List<Purchase> getPurchases() {
-        return purchases;
+    public int getId() {
+        return id;
     }
 
-    public void setPurchases(List<Purchase> purchases) {
-        this.purchases = purchases;
+    public List<Purchase> getPurchases() {
+        return purchases;
     }
 
     public void addPurchase(Item item) {
